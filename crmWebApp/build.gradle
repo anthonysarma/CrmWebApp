@@ -1,0 +1,111 @@
+plugins {
+	//id 'com.gradle.build-scan' version '1.13.1'
+	id "org.springframework.boot" version "1.5.8.RELEASE"
+	//id 'org.springframework.boot' version '2.0.5.RELEASE'
+}
+
+apply plugin: 'eclipse'
+apply plugin: "war"
+apply plugin: 'application'
+apply plugin: 'org.springframework.boot'
+apply plugin: 'io.spring.dependency-management'
+
+
+//mainClassName = 'com.infinira.crm.Crm'
+
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+def crmAppDir = "../crmWebApp"
+def buildDir = "${crmAppDir}/build"
+//def distDir = "${buildDir}/dist"
+def classDir = "${buildDir}/classes"
+def confDir = "${crmAppDir}/conf"
+def mainDir = "${crmAppDir}/src/main"
+
+/*project(':sample') {
+    apply plugin: 'java'
+}*/
+
+repositories {
+	mavenLocal()
+	mavenCentral()
+	jcenter()
+	maven { url "http://repo.spring.io/libs-snapshot" }
+}
+
+dependencies {
+	compile fileTree(dir: "${crmAppDir}/lib", include: ['log4j-api-2.6.jar','log4j-core-2.6.jar','mongo-java-driver-3.5.0-20170518.111727-57.jar'])
+	runtime files("${confDir}")
+	
+	providedRuntime("org.springframework.boot:spring-boot-starter-tomcat")
+	compile("org.springframework.boot:spring-boot-starter-actuator")
+	compile("org.springframework.boot:spring-boot-devtools")
+	compile('org.springframework.boot:spring-boot-starter-web','org.apache.tomcat.embed:tomcat-embed-jasper'
+	,'javax.servlet:jstl')
+	compile("org.springframework.boot:spring-boot-starter-web")
+	compile("org.springframework.boot:spring-boot-starter-thymeleaf")
+}
+
+sourceSets {
+ 	main {
+		java {
+ 			srcDir "${crmAppDir}/src/main/java"
+ 		}
+		output.classesDir = "$buildDir/classes/main"
+	}
+	
+	test {
+		java {
+ 			srcDir "${crmAppDir}/src/test/java"
+ 		}
+		output.classesDir = "$buildDir/classes/test"
+	}
+}
+
+jar {
+	//Optional
+	baseName = "crmapp"
+	version =  '0.1.0'
+    description = 'Builds Jar'
+	from(sourceSets.main.output) {  
+        include "${classDir}/main/.class" 
+	}
+    destinationDir = file("${buildDir}/libs")
+	
+}
+
+war {
+	baseName = 'crmapp'
+	version =  '0.1.0'
+}
+
+/*optional
+ * if you have more than one @SpringBootApplication(we can select like this)
+ */
+
+task crmRun(type: org.springframework.boot.gradle.run.BootRunTask, dependsOn:build) {
+	main = 'com.infinira.crm.Crm'
+	classpath = sourceSets.main.runtimeClasspath
+}
+
+//Deleting buildDir
+clean {
+	description = 'Delete buildDir and distDir'
+	delete  buildDir
+}
+
+tasks.withType(JavaCompile) {
+	options.incremental = true // one flag, and things will get MUCH faster
+}
+
+distZip.enabled = false
+distTar.enabled = false
+startScripts.enabled = false
+
+task mainTasks(dependsOn:['clean','build', 'crmRun'])
+build.mustRunAfter clean
+crmRun.mustRunAfter build
+//check.dependsOn.remove(test)
+
+defaultTasks 'mainTasks'

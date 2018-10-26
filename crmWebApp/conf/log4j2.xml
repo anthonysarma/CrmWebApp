@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="warn" name="customerlogs">
+	<Appenders>
+		<Console name="STDOUT" target="SYSTEM_OUT">
+			<PatternLayout pattern="[%p] | %d | %l | [%t] %m%n" />
+		</Console>
+		<RollingRandomAccessFile name="RollingRandomAccessFile" fileName="logs/customerlogs.log" filePattern="logs/$${date:yyyy-MM}/customerlogs-%d{yyyy-MM-dd-HH}-%i.log.gz">
+			<PatternLayout>
+				<Pattern>%d{ISO8601}{UTC} [%20.20t] %-5p %45.45c : %m%n</Pattern>
+			</PatternLayout>
+			<Policies>
+				<SizeBasedTriggeringPolicy size="2 MB" />
+			</Policies>
+			<DefaultRolloverStrategy max="20" />
+		</RollingRandomAccessFile>
+	</Appenders>
+	<Loggers>
+		<Root level="info">
+			<AppenderRef ref="STDOUT" />
+			<AppenderRef ref="RollingRandomAccessFile" />
+		</Root>
+	</Loggers>
+</Configuration>

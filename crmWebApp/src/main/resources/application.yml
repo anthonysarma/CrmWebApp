@@ -1,0 +1,21 @@
+server:
+  contextPath: /crmWebApp
+  port: 8003
+
+management:
+  port: 9000    
+  
+spring:
+  http:
+    multipart:
+      max-file-size: 100MB
+      max-request-size: 100MB
+  messages:
+    basename: i18n/sam
+    cache-seconds: -1
+    encoding: UTF-8
+  devtools:
+    restart:
+      enabled: false    
+      
+      
